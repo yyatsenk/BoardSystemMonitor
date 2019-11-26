@@ -153,10 +153,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Toast.makeText(getApplicationContext(), ((TextView) arg1).getText(), Toast.LENGTH_SHORT).show();
-                if (((TextView) arg1).getText().equals("kbp1-lhp-a00550")) {
-                    Toast.makeText(getApplicationContext(), "kbp1-lhp-a00550", Toast.LENGTH_SHORT).show();
-                    ConnectToNetworkWPA("kbp1-lhp-a00550", "oorA9S0e");
-                    SendData("Hello from Android client");
+                if (((TextView) arg1).getText().equals("Veta")) {
+                    Toast.makeText(getApplicationContext(), "Veta connecting", Toast.LENGTH_SHORT).show();
+                    //ConnectToNetworkWPA("Veta", "vetakravchuk26");
+                    CClient client = new CClient();
+                    Thread t1 =new Thread(client);
+                    t1.start();
                 }
             }
         });
