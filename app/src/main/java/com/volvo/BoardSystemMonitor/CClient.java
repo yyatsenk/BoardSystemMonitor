@@ -29,8 +29,21 @@ public class CClient  extends Thread{
         try
         {
             PrintWriter outToServer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
+
             outToServer.print(s + "\n");
             outToServer.flush();
+
+            StringBuffer inputLine = new StringBuffer();
+            String tmp;
+
+            while ((tmp = inputFromClient.readLine()) != null) {
+                inputLine.append(tmp);
+                System.out.println(tmp);
+            }
+            //use inputLine.toString(); here it would have whole source
+            inputFromClient.close();
+            System.out.println(inputLine);
 
         }
         catch (UnknownHostException e) {
