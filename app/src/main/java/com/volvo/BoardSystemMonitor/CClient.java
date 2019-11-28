@@ -11,6 +11,8 @@ public class  CClient  extends Thread{
     private Socket socket;
     private String ServerIP = "172.22.55.120";
     private Context MainContext;
+    private PrintWriter outToServer;
+    private DataInputStream inputFromServer;
     public  CClient (Context cxt) {
         MainContext = cxt;
     }
@@ -30,28 +32,31 @@ public class  CClient  extends Thread{
             System.out.print(e.getLocalizedMessage());
             System.out.print("\n");
         }
+        try {
+            outToServer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            inputFromServer = new DataInputStream(socket.getInputStream());
+        } catch (Exception e) {
+            System.out.print(e.toString());
+        }
         Send("GET_SYSTEM_INFO");
     }
     public void Send(String s)
     {
         try
         {
-            PrintWriter outToServer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
-
             outToServer.print(s + "\n");
             outToServer.flush();
 
             StringBuffer inputLine = new StringBuffer();
             String tmp;
 
-            while ((tmp = inputFromClient.readLine()) != null) {
+            while ((tmp = inputFromServer.readLine()) != null) {
+                System.out.println("FROM SERVER: " + tmp);
                 inputLine.append(tmp);
-                System.out.println(tmp);
             }
 
             //use inputLine.toString(); here it would have whole source
-            inputFromClient.close();
+            //inputFromServer.close();
             System.out.println(inputLine);
             MainActivity.setRecieved(inputLine.toString());
 

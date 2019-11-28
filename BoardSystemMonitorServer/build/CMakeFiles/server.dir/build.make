@@ -60,15 +60,15 @@ include CMakeFiles/server.dir/flags.make
 CMakeFiles/server.dir/server.cpp.o: CMakeFiles/server.dir/flags.make
 CMakeFiles/server.dir/server.cpp.o: ../server.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/server.dir/server.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/server.dir/server.cpp.o -c /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/server.cpp
+	/home/yyatsenko/work/qnx700/host/linux/x86_64/usr/bin/q++ -lang-c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/server.dir/server.cpp.o -c /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/server.cpp
 
 CMakeFiles/server.dir/server.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/server.dir/server.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/server.cpp > CMakeFiles/server.dir/server.cpp.i
+	/home/yyatsenko/work/qnx700/host/linux/x86_64/usr/bin/q++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/server.cpp > CMakeFiles/server.dir/server.cpp.i
 
 CMakeFiles/server.dir/server.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/server.dir/server.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/server.cpp -o CMakeFiles/server.dir/server.cpp.s
+	/home/yyatsenko/work/qnx700/host/linux/x86_64/usr/bin/q++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/server.cpp -o CMakeFiles/server.dir/server.cpp.s
 
 CMakeFiles/server.dir/server.cpp.o.requires:
 

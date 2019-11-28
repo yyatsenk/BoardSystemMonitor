@@ -140,10 +140,11 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     CClient client = new CClient(getApplicationContext());
-                    Thread t1 =new Thread(client);
-                    t1.start();
+
+                    client.start();
+                    //client.Send("GET_SYSTEM_INFO");
                     try {
-                        t1.join();
+                        client.join();
                     } catch (InterruptedException e) {
                         System.out.println(e.getLocalizedMessage());
                     }
