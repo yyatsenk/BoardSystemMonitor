@@ -1,4 +1,4 @@
-# Install script for directory: /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitorServer
+# Install script for directory: /home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/yyatsenko/AndroidStudioProjects/BoardSystemMonitorServer/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/yyatsenko/AndroidStudioProjects/BoardSystemMonitor/BoardSystemMonitorServer/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

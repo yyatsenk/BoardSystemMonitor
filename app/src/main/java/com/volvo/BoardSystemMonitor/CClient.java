@@ -3,10 +3,18 @@ package com.volvo.BoardSystemMonitor;
 
 import java.io.*;
 import java.net.*;
+import android.widget.Toast;
+import android.content.Context;
 
-public class CClient  extends Thread{
+
+public class  CClient  extends Thread{
     private Socket socket;
-    private String ServerIP = "192.168.0.102";
+    private String ServerIP = "172.22.55.120";
+    private Context MainContext;
+    public  CClient (Context cxt) {
+        MainContext = cxt;
+    }
+
     public void run() {
         try
         {
@@ -22,7 +30,7 @@ public class CClient  extends Thread{
             System.out.print(e.getLocalizedMessage());
             System.out.print("\n");
         }
-        Send("Hello from Android");
+        Send("GET_SYSTEM_INFO");
     }
     public void Send(String s)
     {
@@ -41,9 +49,11 @@ public class CClient  extends Thread{
                 inputLine.append(tmp);
                 System.out.println(tmp);
             }
+
             //use inputLine.toString(); here it would have whole source
             inputFromClient.close();
             System.out.println(inputLine);
+            MainActivity.setRecieved(inputLine.toString());
 
         }
         catch (UnknownHostException e) {

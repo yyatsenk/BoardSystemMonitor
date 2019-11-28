@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.ScanResult;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.content.IntentFilter;
 import java.util.*;
 
@@ -35,53 +37,28 @@ public class MainActivity extends AppCompatActivity {
 
     WifiManager wifi;
     List<ScanResult> results;
-    int size = 0;
-    TextView text;
     ArrayAdapter<String> arrayAdapter;
     Button wifiDiscoverBtn;
     ListView lv;
+    TextView RAMavailable;
+    TextView CPUusage;
+    private static String recieved = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        final Button wifiDiscoverBtn = (Button) findViewById(R.id.wifiDiscoverBtn);
-//        text = (TextView) findViewById(R.id.fountField);
-//        wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-//        if (wifi.isWifiEnabled() == false)
-//        {
-//            System.out.println("wifi is disabled..making it enabled");
-//            wifi.setWifiEnabled(true);
-//        }
-//        registerReceiver(new BroadcastReceiver()
-//        {
-//            @Override
-//            public void onReceive(Context c, Intent intent)
-//            {
-//                results = wifi.getScanResults();
-//
-//                size = results.size();
-//                unregisterReceiver(this);
-//                Toast.makeText(getApplicationContext(), "I revieve " + size, Toast.LENGTH_SHORT).show();
-//            }
-//        }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-//        wifi.startScan();
-//        wifiDiscoverBtn.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//                Toast.makeText(getApplicationContext(), "Scanning....", Toast.LENGTH_SHORT).show();
-//                text.setText("debug");
-//                try {
-//                    text.setText("Size = " + size);
-//                } catch (Exception e) {
-//                    text.setText("Exeption happen!");
-//                }
-//            }
-//        });
         wifiDiscoverBtn = (Button) findViewById(R.id.wifiDiscoverBtn);
         lv = (ListView) findViewById(R.id.lv);
+        RAMavailable = (TextView) findViewById(R.id.RAMavailable);
+        CPUusage = (TextView) findViewById(R.id.CPUusage);
         wifi = (WifiManager)
                 getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
+        if (!wifi.isWifiEnabled()) {
+            Toast.makeText(getApplicationContext(), "You need to have Wi-fi enabled", Toast.LENGTH_SHORT).show();
+            wifi.setWifiEnabled(true);
+        }
         BroadcastReceiver wifiScanReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context c, Intent intent) {
@@ -100,14 +77,12 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         getApplicationContext().registerReceiver(wifiScanReceiver, intentFilter);
 
-        //text = (TextView) findViewById(R.id.fountField);
         //Check for permissions
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED)
                 || (ContextCompat.checkSelfPermission(this, Manifest.permission.CHANGE_WIFI_STATE)
                 != PackageManager.PERMISSION_GRANTED))
         {
-            //text.setText("Permissions not granted");
 
             //Request permission
             ActivityCompat.requestPermissions(this,
@@ -119,32 +94,29 @@ public class MainActivity extends AppCompatActivity {
                             Manifest.permission.INTERNET},
                     123);
         }
-        else
-           ; //text.setText("Permissions already granted");
-
-        boolean success = wifi.startScan();
-        if (!success) {
-            Toast.makeText(getApplicationContext(), "Failure!", Toast.LENGTH_SHORT).show();
-            // scan failure handling
-            scanFailure();
-        }
-        Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
-        scanSuccess();
 
         wifiDiscoverBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Scanning....", Toast.LENGTH_SHORT).show();
+                boolean success = wifi.startScan();
+                if (!success) {
+                    Toast.makeText(getApplicationContext(), "Failure!", Toast.LENGTH_SHORT).show();
+                    // scan failure handling
+                    scanFailure();
+                }
+                //Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
+                scanSuccess();
                 arrayAdapter.notifyDataSetChanged();
             }
         });
     }
     private void scanSuccess() {
         results = wifi.getScanResults();
-        //Toast.makeText(getApplicationContext(), "Name = " + results.get(0).SSID, Toast.LENGTH_SHORT).show();
         List<String> resList = new ArrayList<>();
 
         for (ScanResult result : results) {
-            resList.add(result.SSID);
+            if (result.SSID.length() != 0)
+                resList.add(result.SSID);
         }
         arrayAdapter = new ArrayAdapter<String>
                 (this, android.R.layout.simple_list_item_1, resList);
@@ -153,21 +125,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Toast.makeText(getApplicationContext(), ((TextView) arg1).getText(), Toast.LENGTH_SHORT).show();
-                if (((TextView) arg1).getText().equals("Veta")) {
-                    Toast.makeText(getApplicationContext(), "Veta connecting", Toast.LENGTH_SHORT).show();
-                    //ConnectToNetworkWPA("Veta", "vetakravchuk26");
-                    CClient client = new CClient();
+                if (((TextView) arg1).getText().equals("kbp1-lhp-a00550")) {
+                    Toast.makeText(getApplicationContext(), ((TextView) arg1).getText() +" sending request", Toast.LENGTH_SHORT).show();
+                    ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+                    if (!mWifi.isConnected()) {
+                        ConnectToNetworkWPA(((TextView) arg1).getText().toString(), "oorA9S0e");
+                        try {
+                            //time for ARP get info about gateway MAC
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            System.out.println(e.getLocalizedMessage());
+                        }
+                    }
+                    CClient client = new CClient(getApplicationContext());
                     Thread t1 =new Thread(client);
                     t1.start();
+                    try {
+                        t1.join();
+                    } catch (InterruptedException e) {
+                        System.out.println(e.getLocalizedMessage());
+                    }
+                    RAMavailable.setText("RAM avaliable: " + recieved);
+                    Toast.makeText(getApplicationContext(), "CPU: " + recieved, Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
     private void scanFailure() {
-        // handle failure: new scan did NOT succeed
-        // consider using old scan results: these are the OLD results!
-        results = wifi.getScanResults();
+        Toast.makeText(getApplicationContext(), "Scanning failed!", Toast.LENGTH_SHORT).show();
     }
 
     public boolean ConnectToNetworkWPA( String networkSSID, String password )
@@ -213,10 +201,8 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
     }
-    public void SendData(String data) {
-        CClient client = new CClient();
 
-        //client.Send(data);
-
+    public static void setRecieved(String recievedData) {
+        recieved = recievedData;
     }
 }

@@ -1,20 +1,36 @@
 
-// Server side C/C++ program to demonstrate Socket programming 
 #include <unistd.h> 
 #include <stdio.h> 
+#include <sys/types.h>
 #include <sys/socket.h> 
 #include <stdlib.h> 
 #include <netinet/in.h> 
+#include <netinet/tcp.h>
+#include <sys/stat.h>
 #include <string.h> 
+#include <iostream>
+#include <fstream>
+#include <unistd.h>
+#include <fcntl.h>
+#include <pthread.h>
 #define PORT 5005 
+
+
+void *topThread(void *p) {
+    (void)p;
+    system("while sleep 3; do top > top.txt done");
+    return 0;
+}
+
 int main(int argc, char const *argv[]) 
 { 
+    pthread_t topCommandThread;
     int server_fd, new_socket, valread; 
     struct sockaddr_in address; 
     int opt = 1; 
     int addrlen = sizeof(address); 
     char buffer[1024] = {0}; 
-    char *hello = "Hello from server"; 
+    char *hello = strdup("Hello from server"); 
        
     // Creating socket file descriptor 
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
@@ -24,14 +40,14 @@ int main(int argc, char const *argv[])
     } 
        
     // Forcefully attaching socket to the port 8080 
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
+    if (setsockopt(server_fd, IPPROTO_TCP, TCP_NODELAY, 
                                                   &opt, sizeof(opt))) 
     { 
         perror("setsockopt"); 
         exit(EXIT_FAILURE); 
     } 
     address.sin_family = AF_INET; 
-    address.sin_addr.s_addr = INADDR_ANY; 
+    address.sin_addr.s_addr = ((in_addr_t) 0x00000000); 
     address.sin_port = htons( PORT ); 
        
     // Forcefully attaching socket to the port 8080 
@@ -51,10 +67,56 @@ int main(int argc, char const *argv[])
     { 
         perror("accept"); 
         exit(EXIT_FAILURE); 
-    } 
+    }
     valread = read( new_socket , buffer, 1024); 
-    printf("%s\n",buffer ); 
-    send(new_socket , hello , strlen(hello) , 0 ); 
-    printf("Hello message sent\n"); 
+    printf("%s\n",buffer );
+    int err = pthread_create(&topCommandThread, NULL, &topThread, NULL);
+        if (err != 0)
+            printf("\ncan't create thread :[%s]", strerror(err));
+    pthread_join(topCommandThread, NULL);
+    char arr[300];
+    int size_read;
+    int fd = open("top.txt", O_RDONLY);
+    size_read = read( fd, arr,
+                      sizeof( arr ) );
+
+    /* Test for error */
+    if( size_read == -1 ) {
+        perror( "Error reading myfile.dat" );
+        return EXIT_FAILURE;
+    }
+    printf("%s\n\n", arr);
+    /* Close the file */
+    if (!strncmp(buffer, "GET_SYSTEM_INFO", 15)) {
+    std::ifstream myReadFile;
+    //x86 code
+    // myReadFile.open("/proc/cpuinfo");
+    // std::string str;
+    // if (myReadFile.is_open()) {
+    //     while (std::getline(myReadFile, str)) {
+    //         if (!strncmp("model name", str.c_str(), 10)) {
+    //             std::cout << str << std::endl;
+    //             break;
+    //         }
+    //     }
+    // }
+    // }
+    //     else
+    //         std::cout<< "Open failed\n";
+    
+    //     myReadFile.close();
+    
+    //aarch64le QNX code
+    // struct stat buf;
+    // char str[30];
+    // if (stat("/proc", &buf) != -1) {
+    //     sprintf(str, "%d", buf.st_size);
+    // }
+    
+    // send(new_socket , str , strlen(str) , 0); 
+    send(new_socket , arr , strlen(arr) , 0); 
+    printf("Hello message sent\n");
+    close(fd);
+}
     return 0; 
 } 
