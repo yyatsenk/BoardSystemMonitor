@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     List<ScanResult> results;
     ArrayAdapter<String> arrayAdapter;
     Button wifiDiscoverBtn;
+    Button exitButton;
     ListView lv;
     TextView RAMavailable;
     //TextView CPUusage;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(getApplicationContext(), "Connect to Wi-fi to system get info about VCU", Toast.LENGTH_SHORT).show();
         wifiDiscoverBtn = (Button) findViewById(R.id.wifiDiscoverBtn);
+        exitButton = (Button) findViewById(R.id.exitButton);
         lv = (ListView) findViewById(R.id.lv);
         RAMavailable = (TextView) findViewById(R.id.RAMavailable);
         //CPUusage = (TextView) findViewById(R.id.CPUusage);
@@ -110,6 +112,21 @@ public class MainActivity extends AppCompatActivity {
                 arrayAdapter.notifyDataSetChanged();
             }
         });
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                CClient client = new CClient(getApplicationContext(), "EXIT");
+
+                client.start();
+                try {
+                    client.join();
+                } catch (InterruptedException e) {
+                    System.out.println(e.getLocalizedMessage());
+                }
+                RAMavailable.setText("" + recieved);
+                Toast.makeText(getApplicationContext(), "" + recieved, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
     private void scanSuccess() {
         results = wifi.getScanResults();
@@ -126,13 +143,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Toast.makeText(getApplicationContext(), ((TextView) arg1).getText(), Toast.LENGTH_SHORT).show();
-                if (((TextView) arg1).getText().equals("kbp1-lhp-a00550")) {
+                if (((TextView) arg1).getText().equals("kbp1-lhp-f87370")) {
                     Toast.makeText(getApplicationContext(), ((TextView) arg1).getText() +" sending request", Toast.LENGTH_SHORT).show();
                     ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
                     if (!mWifi.isConnected()) {
-                        ConnectToNetworkWPA(((TextView) arg1).getText().toString(), "oorA9S0e");
+                        ConnectToNetworkWPA(((TextView) arg1).getText().toString(), "pZ3KsFAX");
                         try {
                             //time for ARP get info about gateway MAC
                             Thread.sleep(2000);

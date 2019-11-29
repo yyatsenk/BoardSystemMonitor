@@ -71,13 +71,15 @@ class MessagingVCU {
             perror("accept"); 
             exit(EXIT_FAILURE); 
         }
-        valread = read( new_socket , recieved, 1024);
+        recv(new_socket,recieved,1024,0);
+        //valread = read( new_socket , recieved, 1024);
     }
 
     int Send(void *data) {
         if (server_fd < 0)
             return EXIT_FAILURE;
         send(new_socket , static_cast<char*>(data) , strlen(static_cast<char*>(data)) , 0);
+        close(new_socket);
         return EXIT_SUCCESS;
     }
     ~MessagingVCU() {
@@ -100,6 +102,7 @@ int main(int argc, char const *argv[])
     MessagingVCU *server = MessagingVCU::getMessagingVCU();
     char *sendData = strdup("Hello from server");
     if (!server->Open()) {
+        while (true) {
         server->WaitForReceive(recieved);
         printf("Recieved Message: %s", recieved);
         if (!strncmp(recieved, "GET_SYSTEM_INFO", 15)) {
@@ -116,9 +119,15 @@ int main(int argc, char const *argv[])
             server->Send(static_cast<void *>(arr));
             close(fd);
        }
+       else if (!strncmp(recieved, "EXIT", 4)) {
+        
+            server->Send(const_cast<void *>(static_cast<const void *>("Successfully closed!")));
+            break;
+       }
        else {
            server->Send(const_cast<void *>(static_cast<const void *>("Unknown command")));
        }
+        }
     }
     return 0; 
 } 
