@@ -41,17 +41,18 @@ public class MainActivity extends AppCompatActivity {
     Button wifiDiscoverBtn;
     ListView lv;
     TextView RAMavailable;
-    TextView CPUusage;
+    //TextView CPUusage;
     private static String recieved = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toast.makeText(getApplicationContext(), "Connect to Wi-fi to system get info about VCU", Toast.LENGTH_SHORT).show();
         wifiDiscoverBtn = (Button) findViewById(R.id.wifiDiscoverBtn);
         lv = (ListView) findViewById(R.id.lv);
         RAMavailable = (TextView) findViewById(R.id.RAMavailable);
-        CPUusage = (TextView) findViewById(R.id.CPUusage);
+        //CPUusage = (TextView) findViewById(R.id.CPUusage);
         wifi = (WifiManager)
                 getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                             System.out.println(e.getLocalizedMessage());
                         }
                     }
-                    CClient client = new CClient(getApplicationContext());
+                    CClient client = new CClient(getApplicationContext(), "GET_SYSTEM_INFO");
 
                     client.start();
                     //client.Send("GET_SYSTEM_INFO");
@@ -148,8 +149,10 @@ public class MainActivity extends AppCompatActivity {
                     } catch (InterruptedException e) {
                         System.out.println(e.getLocalizedMessage());
                     }
-                    RAMavailable.setText("RAM avaliable: " + recieved);
-                    Toast.makeText(getApplicationContext(), "CPU: " + recieved, Toast.LENGTH_SHORT).show();
+                    //String regexTarget = "\\b[K\\b";
+                    String exactWordReplaced = recieved.replace("[K", "\n");
+                    RAMavailable.setText("" + exactWordReplaced);
+                    Toast.makeText(getApplicationContext(), "" + recieved, Toast.LENGTH_SHORT).show();
                 }
             }
         });

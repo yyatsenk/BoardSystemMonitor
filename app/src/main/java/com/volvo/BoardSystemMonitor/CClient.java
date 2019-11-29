@@ -13,32 +13,45 @@ public class  CClient  extends Thread{
     private Context MainContext;
     private PrintWriter outToServer;
     private DataInputStream inputFromServer;
-    public  CClient (Context cxt) {
+    private String SendData = null;
+    public  CClient (Context cxt, String data) {
         MainContext = cxt;
+        SendData = data;
     }
 
     public void run() {
-        try
-        {
-            InetAddress inetAddress=InetAddress.getByName(ServerIP);
-            socket = new Socket(ServerIP, 5005);
-
-            //getPort() method will return the port number of this socket
-            System.out.println("Port number: "+socket.getPort());
-        }
-        catch(Exception e)
-        {
-            System.out.print("Whoops! It didn't work!:");
-            System.out.print(e.getLocalizedMessage());
-            System.out.print("\n");
-        }
         try {
-            outToServer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            inputFromServer = new DataInputStream(socket.getInputStream());
-        } catch (Exception e) {
-            System.out.print(e.toString());
+            try {
+                InetAddress inetAddress = InetAddress.getByName(ServerIP);
+                socket = new Socket(ServerIP, 5005);
+
+                //getPort() method will return the port number of this socket
+                System.out.println("Port number: " + socket.getPort());
+
+                try {
+                    outToServer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+                    inputFromServer = new DataInputStream(socket.getInputStream());
+                } catch (Exception e) {
+                    System.out.print(e.toString());
+                }
+                Send(SendData);
+            } catch (Exception e) {
+                System.out.print("Whoops! It didn't work!:");
+                System.out.print(e.getLocalizedMessage());
+                System.out.print("\n");
+            } finally {
+                if (socket != null)
+                    socket.close();
+                if (outToServer != null)
+                    outToServer.close();
+                if (inputFromServer != null)
+                    inputFromServer.close();
+            }
+        } catch (IOException e) {
+            System.err.println(e);
         }
-        Send("GET_SYSTEM_INFO");
+
+
     }
     public void Send(String s)
     {
@@ -54,9 +67,6 @@ public class  CClient  extends Thread{
                 System.out.println("FROM SERVER: " + tmp);
                 inputLine.append(tmp);
             }
-
-            //use inputLine.toString(); here it would have whole source
-            //inputFromServer.close();
             System.out.println(inputLine);
             MainActivity.setRecieved(inputLine.toString());
 
