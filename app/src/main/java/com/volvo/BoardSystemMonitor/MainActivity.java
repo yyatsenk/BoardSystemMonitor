@@ -152,15 +152,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Toast.makeText(getApplicationContext(), ((TextView) arg1).getText(), Toast.LENGTH_SHORT).show();
+
                 if (((TextView) arg1).getText().equals("kbp1-lhp-f87370")) {
                     Toast.makeText(getApplicationContext(), ((TextView) arg1).getText() +" sending request", Toast.LENGTH_SHORT).show();
+
                     ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                     NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
                     if (!mWifi.isConnected()) {
                         ConnectToNetworkWPA(((TextView) arg1).getText().toString(), "pZ3KsFAX");
                         try {
-                            //time for ARP get info about gateway MAC
+                            //time for ARP to get info about gateway MAC
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             System.out.println(e.getLocalizedMessage());

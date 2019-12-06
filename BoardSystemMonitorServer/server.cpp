@@ -12,14 +12,9 @@
 #include <fstream>
 #include <unistd.h>
 #include <fcntl.h>
-#include <pthread.h>
-#define PORT 5004 
+#include <thread>
 
-void *topThread(void *p) {
-    (void)p;
-    system("top -i 1 | grep -E -- 'Memory|CPU' > top.txt");
-    return 0;
-}
+#define PORT 5004
 
 class MessagingVCU {
     int server_fd = -1;
@@ -29,20 +24,22 @@ class MessagingVCU {
     int addrlen = sizeof(address); 
     char buffer[1024] = {0}; 
     struct sockaddr_in address;
-    static MessagingVCU *sr;
     
     MessagingVCU() {
         if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
             perror("socket failed"); 
     }
     public:
+    /**
+     *  Open port for listening
+     **/
     int Open() {
         if (server_fd < 0)
             return EXIT_FAILURE;
         if (setsockopt(server_fd, IPPROTO_TCP, TCP_NODELAY, 
                                                   &opt, sizeof(opt))) 
         { 
-            perror("setsockopt"); 
+            perror("setsockopt");
             exit(EXIT_FAILURE); 
         } 
         address.sin_family = AF_INET; 
@@ -52,29 +49,32 @@ class MessagingVCU {
         if (bind(server_fd, (struct sockaddr *)&address,  
                                  sizeof(address))<0) 
         { 
-            perror("bind failed"); 
+            perror("bind failed");
             exit(EXIT_FAILURE); 
         }
         if (listen(server_fd, 3) < 0) 
         { 
-            perror("listen"); 
+            perror("listen failed");
             exit(EXIT_FAILURE); 
         } 
         return EXIT_SUCCESS;
     }
-    
+    /**
+    *  Accept incomming messages
+    **/
     void WaitForReceive(char *recieved) {
         
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address,  
                        (socklen_t*)&addrlen))<0) 
         { 
-            perror("accept"); 
+            perror("accept failed");
             exit(EXIT_FAILURE); 
         }
-        recv(new_socket,recieved,1024,0);
-        //valread = read( new_socket , recieved, 1024);
+        recv(new_socket, recieved, 1024,0);
     }
-
+    /**
+    *  Send data to client
+    **/
     int Send(void *data) {
         if (server_fd < 0)
             return EXIT_FAILURE;
@@ -83,39 +83,38 @@ class MessagingVCU {
         return EXIT_SUCCESS;
     }
     ~MessagingVCU() {
-        //close(new_socket);
         close(server_fd);
     }
-    static MessagingVCU * getMessagingVCU() {
-        if (sr != nullptr)
-            return sr;
-        sr = new MessagingVCU();
-        return sr;
+    /**
+    *  Creates MessagingVCU instance
+    **/
+    static MessagingVCU  &getMessagingVCU() {
+        static MessagingVCU server;
+        return server;
     }
 };
-MessagingVCU * MessagingVCU::sr = 0;
 
 int main(int argc, char const *argv[]) 
 { 
-    pthread_t topCommandThread;
     char recieved[1024] = {0};
-    MessagingVCU *server = MessagingVCU::getMessagingVCU();
-    char *sendData = strdup("Hello from server");
+    MessagingVCU *server = &(MessagingVCU::getMessagingVCU());
+
     if (!server->Open()) {
         while (true) {
             server->WaitForReceive(recieved);
             printf("Recieved Message: %s", recieved);
             if (!strncmp(recieved, "GET_SYSTEM_INFO", 15)) {
-        
-                int err = pthread_create(&topCommandThread, NULL, &topThread, NULL);
-                if (err != 0)
-                    printf("\ncan't create thread :[%s]", strerror(err));
-                pthread_join(topCommandThread, NULL);
-            
-                char arr[150];
-                int size_read;
+
+                std::thread top_command([]() -> void {
+                    system("top -i 1 | grep -E -- 'Memory|CPU' > top.txt");
+                });
+                if (top_command.joinable())
+                    top_command.join();
+
+                char arr[202];
                 int fd = open("top.txt", O_RDONLY);
-                size_read = read( fd, arr, sizeof( arr ) );
+
+                read(fd, arr, sizeof( arr ) );
                 server->Send(static_cast<void *>(arr));
                 close(fd);
             }
