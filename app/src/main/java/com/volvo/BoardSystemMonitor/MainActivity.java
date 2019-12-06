@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     List<ScanResult> results;
     ArrayAdapter<String> arrayAdapter;
     Button wifiDiscoverBtn;
-    Button exitButton;
+    //Button exitButton;
     ListView lv;
     TextView RAMavailable;
     //TextView CPUusage;
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(getApplicationContext(), "Connect to Wi-fi to system get info about VCU", Toast.LENGTH_SHORT).show();
         wifiDiscoverBtn = (Button) findViewById(R.id.wifiDiscoverBtn);
-        exitButton = (Button) findViewById(R.id.exitButton);
+        //exitButton = (Button) findViewById(R.id.exitButton);
         lv = (ListView) findViewById(R.id.lv);
         RAMavailable = (TextView) findViewById(R.id.RAMavailable);
         //CPUusage = (TextView) findViewById(R.id.CPUusage);
@@ -112,20 +112,29 @@ public class MainActivity extends AppCompatActivity {
                 arrayAdapter.notifyDataSetChanged();
             }
         });
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                CClient client = new CClient(getApplicationContext(), "EXIT");
-
-                client.start();
-                try {
-                    client.join();
-                } catch (InterruptedException e) {
-                    System.out.println(e.getLocalizedMessage());
-                }
-                RAMavailable.setText("" + recieved);
-                Toast.makeText(getApplicationContext(), "" + recieved, Toast.LENGTH_SHORT).show();
-            }
-        });
+//        exitButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//                ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//                NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//
+//                if (mWifi.isConnected()) {
+//                    CClient client = new CClient(getApplicationContext(), "EXIT");
+//
+//                    client.start();
+//                    try {
+//                        client.join();
+//                    } catch (InterruptedException e) {
+//                        System.out.println(e.getLocalizedMessage());
+//                    }
+//                    RAMavailable.setText("" + recieved);
+//                    Toast.makeText(getApplicationContext(), "" + recieved, Toast.LENGTH_SHORT).show();
+//                }
+//                else {
+//                    Toast.makeText(getApplicationContext(), "No wi-fi connected", Toast.LENGTH_SHORT).show();
+//                }
+//
+//            }
+//        });
 
     }
     private void scanSuccess() {
@@ -160,16 +169,23 @@ public class MainActivity extends AppCompatActivity {
                     CClient client = new CClient(getApplicationContext(), "GET_SYSTEM_INFO");
 
                     client.start();
-                    //client.Send("GET_SYSTEM_INFO");
                     try {
                         client.join();
                     } catch (InterruptedException e) {
                         System.out.println(e.getLocalizedMessage());
                     }
-                    //String regexTarget = "\\b[K\\b";
-                    String exactWordReplaced = recieved.replace("[K", "\n");
-                    RAMavailable.setText("" + exactWordReplaced);
-                    Toast.makeText(getApplicationContext(), "" + recieved, Toast.LENGTH_SHORT).show();
+                    String exactWordReplaced = null;
+                    if (recieved != null) {
+                        exactWordReplaced = recieved.replace("[K", "\n");
+                        RAMavailable.setText("" + exactWordReplaced);
+                        Toast.makeText(getApplicationContext(), "" + recieved, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "Host is unreachable", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Not suitable wi-fi network ", Toast.LENGTH_SHORT).show();
                 }
             }
         });

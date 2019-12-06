@@ -23,7 +23,7 @@ public class  CClient  extends Thread{
         try {
             try {
                 InetAddress inetAddress = InetAddress.getByName(ServerIP);
-                socket = new Socket(ServerIP, 5005);
+                socket = new Socket(ServerIP, 5004);
 
                 //getPort() method will return the port number of this socket
                 System.out.println("Port number: " + socket.getPort());
